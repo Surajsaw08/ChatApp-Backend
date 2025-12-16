@@ -15,11 +15,10 @@ export function registerUserEvents(io: SocketIoserver, socket: Socket) {
       const userId = socket.data.userId;
 
       if (!userId) {
-        socket.emit("updateProfile", {
+        return socket.emit("updateProfile", {
           success: false,
           msg: "Unautherized",
         });
-        return;
       }
 
       try {
@@ -29,15 +28,14 @@ export function registerUserEvents(io: SocketIoserver, socket: Socket) {
             name: data.name,
             avatar: data.avatar,
           },
-          { new: true } //will return the user with updated value efe
+          { new: true } //will return the user with updated value
         );
 
         if (!updatedUser) {
-          socket.emit("updateProfile", {
+          return socket.emit("updateProfile", {
             success: false,
             msg: "User not found",
           });
-          return;
         }
 
         // generate new token
