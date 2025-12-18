@@ -11,7 +11,7 @@ const ConversationSchema = new Schema<ConversationProps>({
   participants: [
     {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "user",
       require: true,
     },
   ],
@@ -21,7 +21,7 @@ const ConversationSchema = new Schema<ConversationProps>({
   },
   createdBy: {
     type: Schema.Types.ObjectId,
-    ref: "User",
+    ref: "user",
   },
   avatar: {
     type: String,

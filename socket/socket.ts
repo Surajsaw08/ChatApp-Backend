@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { Server as SocketIoServer, Socket } from "socket.io";
 import { registerUserEvents } from "./userEvents";
+import { registerChatEvents } from "./chatEvents";
+import Conversation from "../modals/Conversation";
 
 dotenv.config();
 
@@ -46,7 +48,22 @@ export function initializeSocket(server: any): SocketIoServer {
     console.log(`User connected ${userId} , username :${socket.data.name}`);
 
     //register event
+    registerChatEvents(io, socket);
     registerUserEvents(io, socket);
+
+    // join all the conversations the user part of
+
+    try {
+      const conversations = await Conversation.find({
+        participants: userId,
+      }).select("_id");
+
+      conversations.forEach((conversation) => {
+        socket.join(conversation._id.toString());
+      });
+    } catch (error: any) {
+      console.log("Error joining conversation :", error);
+    }
 
     socket.on("disconnect", () => {
       console.log(`user disconnected ${userId} ,username ${socket.data.name}`);
