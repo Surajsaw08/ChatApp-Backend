@@ -2,9 +2,49 @@ import { Socket, Server as SocketIoserver } from "socket.io";
 import Conversation from "../modals/Conversation";
 import User from "../modals/User";
 export function registerChatEvents(io: SocketIoserver, socket: Socket) {
+  socket.on("getConversation", async () => {
+    console.log("getConversation Event");
+    try {
+      const userId = socket.data.userId;
+      if (!userId) {
+        socket.emit("getConversation", {
+          success: false,
+          msg: "unAuthrised",
+        });
+        return;
+      }
+
+      // fetch all conversation where user is participent
+
+      const conversation = await Conversation.find({
+        participants: userId,
+      })
+        .sort({ updatedAt: -1 })
+        .populate({
+          path: "lastMessage",
+          select: "content senderId attachement createdAt",
+        })
+        .populate({
+          path: "participants",
+          select: "name avatar email",
+        })
+        .lean();
+
+      socket.emit("getConversation", {
+        success: true,
+        data: conversation,
+      });
+    } catch (error) {
+      console.log("getConversation error :", error);
+      socket.emit("getConversation", {
+        success: false,
+        msg: "Failed to get conversation",
+      });
+    }
+  });
+
   socket.on("newConversation", async (data) => {
     //console.log("newConversation Event:", data);
-
     try {
       if (data.type == "direct") {
         const existingConversation = await Conversation.findOne({
