@@ -10,7 +10,7 @@ export function registerUserEvents(io: SocketIoserver, socket: Socket) {
   socket.on(
     "updateProfile",
     async (data: { name?: String; avatar?: String }) => {
-      console.log("update profile data", data);
+      // console.log("update profile data", data);
 
       const userId = socket.data.userId;
 
